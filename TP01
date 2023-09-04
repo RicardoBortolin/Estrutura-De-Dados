@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+float calcularMedia(float notas[], int NumNotas) {
+    float soma = 0.0;
+    for (int i = 0; i < NumNotas; i++) {
+        soma += notas[i];
+    }
+    return soma / NumNotas;
+}
+
+
+char *Situacaoaluno(float media) {
+    if (media >= 7.0) {
+        return "APROVADO";
+    } else {
+        return "REPROVADO";
+    }
+}
+
+int main() {
+    FILE *arquivoEntrada = fopen("DadosEntrada.csv", "r");
+    FILE *arquivoSaida = fopen("SituacaoFinal.csv", "w");
+
+    if (arquivoEntrada == NULL || arquivoSaida == NULL) {
+        printf("Erro ao abrir os arquivos.\n");
+        return 1;
+    }
+
+ 
+    fprintf(arquivoSaida, "Nome, Média, Situação\n");
+
+    char linha[1000];
+    while (fgets(linha, sizeof(linha), arquivoEntrada) != NULL) {
+        char *token;
+        char nome[100], curso[100];
+        float notas[100];
+        int NumNotas = 0;
+
+        
+        token = strtok(linha, ",");
+        strcpy(nome, token);
+
+        token = strtok(NULL, ",");
+        token = strtok(NULL, ","); 
+        strcpy(curso, token);
+
+        token = strtok(NULL, ",");
+        while (token != NULL) {
+            notas[NumNotas] = atof(token);
+            NumNotas++;
+            token = strtok(NULL, ",");
+        }
+
+       
+        float media = calcularMedia(notas, NumNotas);
+        char *situacao = determinarSituacao(media);
+
+        
+        fprintf(arquivoSaida, "%s, %.2f, %s\n", nome, media, situacao);
+    }
+
+    fclose(arquivoEntrada);
+    fclose(arquivoSaida);
+
+    printf("Processo concluído. Verifique o arquivo SituacaoFinal.csv\n");
+
+    return 0;
+}
